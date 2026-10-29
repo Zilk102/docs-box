@@ -11,7 +11,9 @@
 
 ![Таблица договоров](docs/img/screenshot-light.png)
 
-<img src="docs/img/screenshot-mobile.png" alt="Мобильная версия" width="260">
+Адаптивная раскладка: телефон (390 px) и планшет (820 px).
+
+![Адаптивная раскладка](docs/img/responsive.png)
 
 ## Возможности
 

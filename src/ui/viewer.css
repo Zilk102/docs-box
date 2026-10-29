@@ -29,7 +29,7 @@ mark { background: var(--mark); color: inherit; padding: 1px 2px; border-radius:
   .has-viewer .layout { grid-template-columns: minmax(0, 1fr); }
   .viewer { position: fixed; inset: auto 0 0 0; top: auto; max-height: 72vh; border-radius: 18px 18px 0 0; z-index: 30; box-shadow: 0 -12px 40px -10px rgba(0, 0, 0, .35); }
 }
-@media (max-width: 760px) {
+@media (max-width: 1000px) {
   .grid { min-width: 0; }
   .grid thead { display: none; }
   .grid, .grid tbody, .grid tr, .grid th, .grid td { display: block; width: 100%; }
@@ -37,6 +37,5 @@ mark { background: var(--mark); color: inherit; padding: 1px 2px; border-radius:
   .grid tbody th, .grid tbody td { border-bottom: 1px solid var(--line); }
   .grid td[data-label]::before, .grid th[data-label]::before { content: attr(data-label); display: block; margin-bottom: 4px; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
   .grid tr.sub { margin: -4px 0 14px; }
-  .who input { width: 110px; }
 }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
