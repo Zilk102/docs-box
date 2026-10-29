@@ -4,26 +4,30 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DocsBox — сверка договоров поставки</title>
-  <meta name="description" content="Сверка суммы и срока поставки по договорам, допсоглашениям и письмам. Работает в браузере, не хранит данных: только импорт/экспорт общей базы.">
+  <meta name="description" content="Сумма и срок поставки по договорам, допсоглашениям и письмам, с цитатой из исходного документа. Данные хранятся в общем файле базы, а не на сайте.">
   <meta name="color-scheme" content="light dark">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7l8-4 8 4v10l-8 4-8-4zM4 7l8 4 8-4M12 11v10'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="src/ui/base.css">
+  <link rel="stylesheet" href="src/ui/tokens.css">
+  <link rel="stylesheet" href="src/ui/layout.css">
+  <link rel="stylesheet" href="src/ui/forms.css">
+  <link rel="stylesheet" href="src/ui/toolbar.css">
   <link rel="stylesheet" href="src/ui/table.css">
   <link rel="stylesheet" href="src/ui/panels.css">
+  <link rel="stylesheet" href="src/ui/viewer.css">
 </head>
 <body>
   <header class="top">
     <div class="brand">
       <span class="logo" id="logo"></span>
-      <div><h1>DocsBox</h1><p>Сверка условий поставки по исходным документам</p></div>
+      <div><h1>DocsBox</h1><p>Сверка договоров поставки</p></div>
     </div>
     <div class="top-actions">
-      <label class="who" title="Подпись под вашими загрузками в общей базе. Не сохраняется на устройстве.">
-        <span>Вы</span><input id="user-name" type="text" placeholder="Ваше имя" maxlength="40" autocomplete="off">
+      <label class="who" title="Подпись под вашими загрузками в общей базе">
+        <span>Вы</span><input id="user-name" type="text" placeholder="Имя" maxlength="40" autocomplete="off">
       </label>
       <span class="pill" id="sync-pill" role="status"></span>
-      <button class="btn ghost" data-act="import">Импорт базы</button>
-      <button class="btn ghost" data-act="export">Экспорт базы</button>
+      <button class="btn ghost" data-act="import" title="Добавить документы из файла базы (JSON)">Импорт</button>
+      <button class="btn ghost" data-act="export" title="Сохранить базу в файл JSON">Экспорт</button>
     </div>
   </header>
 
@@ -34,11 +38,14 @@
       <section class="card drop" id="drop" aria-labelledby="h-upload">
         <div class="drop-inner">
           <div class="drop-ico" id="drop-ico"></div>
-          <div>
-            <h2 id="h-upload">Загрузите договоры, допсоглашения и письма</h2>
-            <p>Перетащите TXT-файлы сюда или <button class="link" data-act="pick">выберите на диске</button>. Тексты попадут в общую базу — сама страница ничего не запоминает.</p>
+          <div class="drop-text">
+            <h2 id="h-upload">Документы</h2>
+            <p>Перетащите TXT-файлы в эту область или выберите их на диске.</p>
           </div>
-          <button class="btn ghost" data-act="demo" id="demo-btn">Загрузить демо-набор</button>
+          <div class="btn-row">
+            <button class="btn primary" data-act="pick">Выбрать файлы</button>
+            <button class="btn" data-act="demo" id="demo-btn">Открыть пример</button>
+          </div>
         </div>
         <input type="file" id="file-input" accept=".txt,text/plain" multiple hidden>
         <input type="file" id="db-input" accept=".json,application/json" hidden>
@@ -46,14 +53,19 @@
 
       <section class="card" id="result" hidden aria-labelledby="h-result">
         <div class="card-head">
-          <div><h2 id="h-result">Условия по договорам</h2><p class="sub">Значения собраны из исходных текстов; у каждого — цитата и переход к абзацу.</p></div>
+          <h2 id="h-result">Договоры</h2>
           <label class="date"><span>Дата проверки</span><input type="date" id="check-date"></label>
+        </div>
+        <div class="stats" id="stats"></div>
+        <div class="toolbar">
+          <input type="search" id="search" placeholder="Поиск по номеру, поставщику, файлу" aria-label="Поиск по договорам">
+          <label class="switch"><input type="checkbox" id="show-quotes" checked><span>Показывать цитаты</span></label>
         </div>
         <div id="contracts"></div>
       </section>
 
       <section class="card" id="qa" hidden aria-labelledby="h-qa">
-        <div class="card-head"><div><h2 id="h-qa">Вопросы</h2><p class="sub">Ответы строятся из той же сверки, без догадок.</p></div></div>
+        <div class="card-head"><h2 id="h-qa">Вопросы</h2></div>
         <div class="qa-grid">
           <div class="qa-card">
             <h3>Значение по договору</h3>
@@ -65,24 +77,23 @@
           </div>
           <div class="qa-card">
             <h3>Поставка раньше даты</h3>
-            <div class="row">
-              <label>Раньше<input type="date" id="q-before"></label>
-            </div>
+            <div class="row"><label>Раньше<input type="date" id="q-before"></label></div>
             <div id="q-before-answer"></div>
           </div>
         </div>
       </section>
 
       <section class="card" id="docs" hidden aria-labelledby="h-docs">
-        <div class="card-head"><div><h2 id="h-docs">Документы в базе</h2><p class="sub" id="docs-sub"></p></div></div>
+        <div class="card-head"><div><h2 id="h-docs">Файлы в базе</h2><p class="sub" id="docs-sub"></p></div></div>
         <ul class="doclist" id="doclist"></ul>
       </section>
     </div>
 
     <aside class="viewer" id="viewer" hidden aria-label="Исходный документ"></aside>
   </main>
+  <div class="backdrop" id="backdrop" hidden data-act="close-viewer"></div>
 
-  <footer class="foot">DocsBox · данные не хранятся в браузере · <a href="https://github.com/Zilk102/docs-box" target="_blank" rel="noopener">исходный код</a></footer>
+  <footer class="foot"><a href="https://github.com/Zilk102/docs-box" target="_blank" rel="noopener">Исходный код на GitHub</a></footer>
   <div id="toasts" aria-live="polite"></div>
   <script type="module" src="src/ui/app.js"></script>
 </body>

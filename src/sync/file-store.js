@@ -41,7 +41,7 @@ export class FileStore {
   /**
    * Записывает базу, если файл не менялся после чтения.
    * Окно гонки между проверкой и записью сводится к миллисекундам; при
-   * промахе следующая синхронизация сольёт обе версии (ничего не теряется,
+   * промахе следующая синхронизация сольёт обе версии (данные сохраняются,
    * т.к. каждый клиент хранит свою копию в памяти и дописывает недостающее).
    * @param {object} db база для записи
    * @param {string|null} token версия, на которой основано слияние
@@ -79,4 +79,16 @@ export async function pickDatabaseFile(mode, win = window) {
   const store = new FileStore(handle);
   if (mode === 'create') await store.write(emptyDb(), null);
   return store;
+}
+
+/**
+ * Проверяет доступ на чтение и запись к ранее выбранному файлу.
+ * @param {FileSystemFileHandle} handle дескриптор из прошлого сеанса
+ * @param {boolean} ask запрашивать ли разрешение (только из клика пользователя)
+ * @returns {Promise<boolean>} есть ли доступ
+ */
+export async function restorePermission(handle, ask) {
+  const options = { mode: 'readwrite' };
+  if ((await handle.queryPermission(options)) === 'granted') return true;
+  return ask && (await handle.requestPermission(options)) === 'granted';
 }

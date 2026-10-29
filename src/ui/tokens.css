@@ -1,0 +1,56 @@
+/* tokens.css — цвета, размеры и шрифты (светлая и тёмная темы), сброс стилей. */
+
+:root {
+  --bg: #f4f5fa;
+  --surface: #ffffff;
+  --surface-2: #f8f9fc;
+  --text: #0f172a;
+  --muted: #64748b;
+  --line: #e4e7ef;
+  --accent: #4f46e5;
+  --accent-ink: #ffffff;
+  --accent-soft: #eef0ff;
+  --ok: #047857;       --ok-soft: #e7f8f0;
+  --warn: #b45309;     --warn-soft: #fff6e0;
+  --danger: #be123c;   --danger-soft: #ffeaf0;
+  --info: #0369a1;     --info-soft: #e6f4fd;
+  --mark: #fde68a;
+  --radius: 14px;
+  --shadow: 0 1px 2px rgba(15, 23, 42, .05), 0 8px 24px -12px rgba(15, 23, 42, .12);
+  --font: Inter, "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1020;
+    --surface: #131a2e;
+    --surface-2: #19223a;
+    --text: #e6eaf6;
+    --muted: #93a0bd;
+    --line: #26304d;
+    --accent: #8b87ff;
+    --accent-ink: #0b1020;
+    --accent-soft: #232a52;
+    --ok: #4ade9c;      --ok-soft: #10302a;
+    --warn: #fbbf4a;    --warn-soft: #3a2e12;
+    --danger: #ff7b9c;  --danger-soft: #3d1626;
+    --info: #67c1f5;    --info-soft: #11304a;
+    --mark: #6b5b12;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px -12px rgba(0, 0, 0, .5);
+  }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 var(--font);
+  background-image: radial-gradient(1200px 400px at 85% -10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%);
+  background-repeat: no-repeat;
+}
+[hidden] { display: none !important; }
+h1, h2, h3, h4, p { margin: 0; }
+a { color: var(--accent); }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.ico { flex: none; vertical-align: -3px; }

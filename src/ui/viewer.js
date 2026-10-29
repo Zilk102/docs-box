@@ -25,12 +25,13 @@ export function showViewer(panel, doc, range, info = {}) {
   const pars = splitParagraphs(doc.text);
   const quote = doc.text.slice(range.start, range.end);
   panel.hidden = false;
+  document.getElementById('backdrop').hidden = false;
   document.body.classList.add('has-viewer');
   panel.innerHTML = `
     <header class="viewer-head">
       <div><div class="viewer-title">${icon('file', 16)}${esc(doc.name)}</div>
       <div class="viewer-sub">${esc(info.label || '')}${info.statusLabel ? ` · ${esc(info.statusLabel)}` : ''}</div></div>
-      <button class="icon-btn" data-act="close-viewer" aria-label="Закрыть просмотр">${icon('x', 18)}</button>
+      <button class="icon-btn" data-act="close-viewer" aria-label="Закрыть документ">${icon('x', 18)}</button>
     </header>
     ${quote ? `<div class="viewer-quote"><span>Цитата</span>${esc(quote)}</div>` : ''}
     <div class="viewer-body">${pars.map((p) => paragraphHtml(p, range.start, range.end)).join('')}</div>`;
@@ -45,6 +46,7 @@ export function showViewer(panel, doc, range, info = {}) {
  */
 export function hideViewer(panel) {
   panel.hidden = true;
+  document.getElementById('backdrop').hidden = true;
   panel.innerHTML = '';
   document.body.classList.remove('has-viewer');
 }

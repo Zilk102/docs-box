@@ -1,30 +1,34 @@
 /**
- * session.js — подключение к общей базе и синхронизация: первая загрузка,
+ * session.js — синхронизация с подключённым хранилищем: первая загрузка,
  * отправка правок, опрос изменений коллег, отключение.
  *
- * Модуль не знает про разметку: после изменений он вызывает хуки
- * render/renderSync/renderConnect, которые передаёт app.js.
+ * Хранилище приходит снаружи (любой объект с read/write), а перерисовку
+ * модуль запрашивает через хуки, поэтому он не зависит ни от разметки,
+ * ни от конкретного вида хранилища.
  */
 
 import { activeDocuments, mergeDbs } from '../core/db.js';
-import { pickDatabaseFile } from '../sync/file-store.js';
-import { RemoteStore, validateRemoteUrl } from '../sync/remote-store.js';
 import { pollOnce, syncOnce } from '../sync/sync.js';
 import { toast } from './dom.js';
+import { clearConnection } from './persist.js';
 import { state } from './state.js';
 
 const POLL_MS = 5000;
 const hooks = { render() {}, renderSync() {}, renderConnect() {} };
 
 /**
- * Передаёт модулю функции перерисовки интерфейса.
+ * Передаёт модулю функции перерисовки.
  * @param {{render:Function,renderSync:Function,renderConnect:Function}} h хуки
  */
 export function setHooks(h) {
   Object.assign(hooks, h);
 }
 
-function fail(error) {
+/**
+ * Показывает ошибку синхронизации; повторное одинаковое сообщение не дублируется.
+ * @param {Error} error ошибка
+ */
+export function fail(error) {
   state.status = 'error';
   state.error = error.message || String(error);
   hooks.renderSync();
@@ -33,22 +37,8 @@ function fail(error) {
 }
 
 function markSynced(token) {
-  state.token = token;
-  state.lastSync = Date.now();
-  state.status = 'ok';
-  state.error = '';
-  state.lastError = '';
+  Object.assign(state, { token, lastSync: Date.now(), status: 'ok', error: '', lastError: '' });
   hooks.renderSync();
-}
-
-/**
- * Принимает результат синхронизации: сливает его с локальной базой (чтобы не
- * потерять правки, сделанные во время запроса) и обновляет статус.
- */
-function adopt(result) {
-  state.db = mergeDbs(state.db, result.db);
-  state.unsaved = false;
-  markSynced(result.token);
 }
 
 const enqueue = (task) => {
@@ -57,8 +47,8 @@ const enqueue = (task) => {
 };
 
 /**
- * Ставит в очередь цикл «прочитать → слить → записать». Очередь исключает
- * параллельные записи из одной вкладки; без подключённой базы ничего не делает.
+ * Отправляет локальные правки и забирает чужие. Запросы идут по очереди,
+ * поэтому две записи из одной вкладки не пересекаются.
  * @returns {Promise<void>}
  */
 export function pushNow() {
@@ -67,7 +57,10 @@ export function pushNow() {
     state.status = 'syncing';
     hooks.renderSync();
     try {
-      adopt(await syncOnce(state.store, state.db));
+      const result = await syncOnce(state.store, state.db);
+      state.db = mergeDbs(state.db, result.db);
+      state.unsaved = false;
+      markSynced(result.token);
       hooks.render();
     } catch (e) {
       fail(e);
@@ -75,21 +68,17 @@ export function pushNow() {
   });
 }
 
-/**
- * Раз в несколько секунд проверяет, не изменили ли базу коллеги; чужие
- * изменения вливаются в локальную копию. Скрытая вкладка не опрашивает сервер.
- */
+/** Проверяет, не изменили ли базу коллеги. Скрытая вкладка сервер не опрашивает. */
 export function poll() {
   if (!state.store || document.hidden) return;
   enqueue(async () => {
     try {
       const r = await pollOnce(state.store, state.db, state.token);
       markSynced(r.token);
-      if (r.changed) {
-        state.db = mergeDbs(state.db, r.db);
-        hooks.render();
-        toast('База обновлена: появились изменения от коллег', 'info');
-      }
+      if (!r.changed) return;
+      state.db = mergeDbs(state.db, r.db);
+      hooks.render();
+      toast('Коллеги обновили базу', 'info');
     } catch (e) {
       fail(e);
     }
@@ -97,8 +86,7 @@ export function poll() {
 }
 
 /**
- * Применяет локальное изменение базы: перерисовывает интерфейс и отправляет
- * правку в общую базу (если она подключена).
+ * Принимает локальное изменение: перерисовывает экран и отправляет его в базу.
  * @param {object} db новая база
  */
 export function commit(db) {
@@ -109,60 +97,36 @@ export function commit(db) {
 }
 
 /**
- * Подключает хранилище: первая синхронизация (чтение и слияние), затем запуск
- * опроса. При ошибке подключение не устанавливается.
+ * Подключает хранилище и запускает опрос. Если первая синхронизация не
+ * удалась, подключение не устанавливается.
  * @param {{read:Function,write:Function,label:string}} store хранилище базы
+ * @returns {Promise<boolean>} удалось ли подключиться
  */
-async function attach(store) {
+export async function attach(store) {
   state.status = 'syncing';
   hooks.renderSync();
   try {
-    adopt(await syncOnce(store, state.db));
+    const result = await syncOnce(store, state.db);
+    state.db = mergeDbs(state.db, result.db);
+    markSynced(result.token);
   } catch (e) {
     fail(e);
     return false;
   }
   state.store = store;
+  state.unsaved = false;
   clearInterval(state.poller);
   state.poller = setInterval(poll, POLL_MS);
   hooks.renderConnect();
   hooks.render();
-  toast(`Подключено: ${store.label}`, 'ok');
   return true;
 }
 
-/** Подключается к базе на сервере по адресу из поля ввода и запоминает его в ссылке (#db=…). */
-export async function connectRemote() {
-  try {
-    const url = state.url.trim();
-    validateRemoteUrl(url, location.protocol);
-    if (await attach(new RemoteStore({ url, authorization: state.auth.trim() }))) {
-      history.replaceState(null, '', `#db=${encodeURIComponent(url)}`);
-    }
-  } catch (e) {
-    fail(e);
-  }
-}
-
-/**
- * Подключается к файлу базы на диске или в сетевой папке.
- * @param {'open'|'create'} mode открыть существующий или создать новый
- */
-export async function connectFile(mode) {
-  try {
-    await attach(await pickDatabaseFile(mode));
-  } catch (e) {
-    if (e.name !== 'AbortError') fail(e);
-  }
-}
-
-/** Отключает общую базу; данные остаются в памяти вкладки, поэтому до экспорта включается предупреждение о закрытии. */
+/** Отключает базу. Загруженное остаётся на экране до закрытия вкладки. */
 export function disconnect() {
   clearInterval(state.poller);
-  state.store = null;
-  state.status = 'offline';
-  state.token = null;
-  state.unsaved = activeDocuments(state.db).length > 0;
+  Object.assign(state, { store: null, status: 'offline', token: null, unsaved: activeDocuments(state.db).length > 0 });
+  clearConnection();
   history.replaceState(null, '', location.pathname);
   hooks.renderSync();
   hooks.renderConnect();

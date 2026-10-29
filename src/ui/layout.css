@@ -1,0 +1,48 @@
+/* layout.css — шапка, кнопки, сетка страницы и карточки. */
+
+/* ---------- верхняя панель ---------- */
+.top {
+  position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 12px clamp(16px, 3vw, 32px); background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); flex-wrap: wrap;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; color: #fff; background: linear-gradient(135deg, #6366f1, #4338ca); box-shadow: 0 6px 16px -6px rgba(79, 70, 229, .7); }
+.brand h1 { font-size: 18px; letter-spacing: -.01em; line-height: 1.1; }
+.brand p { font-size: 12.5px; color: var(--muted); }
+.top-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.who { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+.who input { width: 150px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 600; border: 1px solid transparent; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.muted { color: var(--muted); background: var(--surface); border-color: var(--line); }
+.pill.ok { color: var(--ok); background: var(--ok-soft); }
+.pill.info { color: var(--info); background: var(--info-soft); }
+.pill.info::before { animation: pulse 1s infinite; }
+.pill.danger { color: var(--danger); background: var(--danger-soft); }
+@keyframes pulse { 50% { opacity: .25; } }
+
+/* ---------- кнопки ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); font-weight: 600; font-size: 14px; transition: .15s;
+}
+.btn:hover:not(:disabled) { border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); transform: translateY(-1px); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; box-shadow: 0 6px 16px -8px var(--accent); }
+.btn.ghost { background: transparent; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.link { background: none; border: 0; padding: 0; color: var(--accent); font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.icon-btn { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
+.icon-btn:hover { background: var(--surface-2); color: var(--danger); }
+
+/* ---------- раскладка ---------- */
+.layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; padding: 24px clamp(16px, 3vw, 32px) 40px; max-width: 1500px; margin: 0 auto; }
+.has-viewer .layout { grid-template-columns: minmax(0, 1fr) minmax(360px, 480px); }
+.content { display: grid; gap: 20px; min-width: 0; align-content: start; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; min-width: 0; }
+.card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+.card h2 { font-size: 17px; letter-spacing: -.01em; }
+.sub { color: var(--muted); font-size: 13.5px; margin-top: 2px; }
+.sub .ico { margin-right: 2px; }

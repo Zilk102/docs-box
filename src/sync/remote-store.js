@@ -31,6 +31,28 @@ export function validateRemoteUrl(url, pageProtocol = 'https:') {
   return parsed;
 }
 
+const CONFLICT_STATUSES = [409, 412];
+
+const READ_STATUS = {
+  304: (known) => ({ unchanged: true, db: null, token: known }),
+  404: () => ({ db: null, token: null }),
+};
+
+function ensureOk(res, action) {
+  if (res.ok) return;
+  if (res.status === 401 || res.status === 403) throw new SyncError('Сервер отказал в доступе (401/403). Проверьте заголовок Authorization.');
+  throw new SyncError(`Сервер ответил ${res.status} на ${action} базы`);
+}
+
+/**
+ * Условие записи: If-Match для строгого ETag, If-None-Match для новой базы;
+ * слабые ETag и Last-Modified в If-Match не годятся, запись идёт без условия.
+ */
+function writeCondition(token) {
+  if (!token) return { 'If-None-Match': '*' };
+  return token.startsWith('"') ? { 'If-Match': token } : {};
+}
+
 /**
  * Хранилище на HTTP-сервере.
  */
@@ -72,10 +94,9 @@ export class RemoteStore {
   async read(knownToken = null) {
     const headers = this.headers(knownToken ? { 'If-None-Match': knownToken } : {});
     const res = await this.request('GET', { headers });
-    if (res.status === 304) return { unchanged: true, db: null, token: knownToken };
-    if (res.status === 404) return { db: null, token: null };
-    if (res.status === 401 || res.status === 403) throw new SyncError('Сервер отказал в доступе (401/403): проверьте заголовок Authorization.');
-    if (!res.ok) throw new SyncError(`Сервер ответил ${res.status} на чтение базы`);
+    const special = READ_STATUS[res.status];
+    if (special) return special(knownToken);
+    ensureOk(res, 'чтение');
     const text = await res.text();
     return { db: text.trim() ? parseDb(text) : null, token: res.headers.get('ETag') || res.headers.get('Last-Modified') };
   }
@@ -87,12 +108,10 @@ export class RemoteStore {
    * @returns {Promise<{ok:boolean,token?:(string|null)}>} ok=false при конфликте версий
    */
   async write(db, token) {
-    const condition = token && token.startsWith('"') ? { 'If-Match': token } : token ? {} : { 'If-None-Match': '*' };
-    const headers = this.headers({ 'Content-Type': 'application/json', ...condition });
+    const headers = this.headers({ 'Content-Type': 'application/json', ...writeCondition(token) });
     const res = await this.request('PUT', { headers, body: serializeDb(db) });
-    if (res.status === 412 || res.status === 409) return { ok: false };
-    if (res.status === 401 || res.status === 403) throw new SyncError('Нет права записи (401/403): проверьте заголовок Authorization.');
-    if (!res.ok) throw new SyncError(`Сервер ответил ${res.status} на запись базы`);
+    if (CONFLICT_STATUSES.includes(res.status)) return { ok: false };
+    ensureOk(res, 'запись');
     return { ok: true, token: res.headers.get('ETag') };
   }
 }

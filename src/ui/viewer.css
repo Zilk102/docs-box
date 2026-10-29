@@ -1,0 +1,42 @@
+/* viewer.css — панель исходного документа, уведомления и адаптив панели. */
+
+/* ---------- панель исходного документа ---------- */
+.viewer { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 96px); display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.viewer-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+.viewer-title { display: flex; align-items: center; gap: 8px; font-weight: 700; word-break: break-all; }
+.viewer-sub { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.viewer-quote { margin: 12px 16px 0; padding: 10px 12px; border-radius: 10px; background: var(--warn-soft); color: var(--text); font-size: 13px; }
+.viewer-quote span { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--warn); margin-bottom: 2px; }
+.viewer-body { overflow: auto; padding: 14px 8px 18px; }
+.par { display: flex; gap: 10px; margin: 0; padding: 7px 8px; border-radius: 8px; font-size: 14px; line-height: 1.55; }
+.par .ln { flex: none; width: 26px; text-align: right; color: var(--muted); font: 12px/1.9 var(--mono); user-select: none; }
+.par .tx { min-width: 0; overflow-wrap: anywhere; }
+.par.hit { background: color-mix(in srgb, var(--mark) 28%, transparent); animation: flash 1.6s ease-out; }
+mark { background: var(--mark); color: inherit; padding: 1px 2px; border-radius: 4px; }
+@keyframes flash { 0% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--mark) 80%, transparent); } 100% { box-shadow: 0 0 0 0 transparent; } }
+
+.foot { text-align: center; color: var(--muted); font-size: 12.5px; padding: 8px 16px 28px; }
+
+/* ---------- уведомления ---------- */
+#toasts { position: fixed; right: 16px; bottom: 16px; z-index: 50; display: grid; gap: 8px; max-width: min(420px, calc(100vw - 32px)); }
+.toast { padding: 11px 14px; border-radius: 12px; background: var(--text); color: var(--bg); font-size: 14px; box-shadow: var(--shadow); animation: in .25s ease-out; transition: .4s; }
+.toast.ok { background: var(--ok); color: #fff; } .toast.error { background: var(--danger); color: #fff; }
+.toast.out { opacity: 0; transform: translateY(8px); }
+@keyframes in { from { opacity: 0; transform: translateY(10px); } }
+
+/* ---------- адаптив ---------- */
+@media (max-width: 1100px) {
+  .has-viewer .layout { grid-template-columns: minmax(0, 1fr); }
+  .viewer { position: fixed; inset: auto 0 0 0; top: auto; max-height: 72vh; border-radius: 18px 18px 0 0; z-index: 30; box-shadow: 0 -12px 40px -10px rgba(0, 0, 0, .35); }
+}
+@media (max-width: 760px) {
+  .grid { min-width: 0; }
+  .grid thead { display: none; }
+  .grid, .grid tbody, .grid tr, .grid th, .grid td { display: block; width: 100%; }
+  .grid tbody tr:not(.sub) { border: 1px solid var(--line); border-radius: 12px; margin-bottom: 4px; overflow: hidden; }
+  .grid tbody th, .grid tbody td { border-bottom: 1px solid var(--line); }
+  .grid td[data-label]::before, .grid th[data-label]::before { content: attr(data-label); display: block; margin-bottom: 4px; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .grid tr.sub { margin: -4px 0 14px; }
+  .who input { width: 110px; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

@@ -22,7 +22,7 @@ test('STN-101: сумма и срок изменены подписанным Д
   const proposed = c.proposals.map((p) => `${p.field}:${p.display}`).sort();
   assert.deepEqual(proposed, ['amount:1 450 000 ₽', 'deadline:10.05.2026']);
   assert.ok(c.proposals.every((p) => p.kind === 'draft' && /не подписан/.test(p.reason)));
-  assert.equal(c.level, 'ok', 'проект — штатная ситуация, а не ошибка');
+  assert.equal(c.level, 'ok', 'проект ДС не требует проверки');
   assert.equal(base.docs.find((d) => /06_/.test(d.name)).role, 'proposal');
 });
 
