@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "mode": "ratchet",
+  "exclude": [],
+  "thresholds": {
+    "maxFunctionLines": 60,
+    "maxComplexity": 8,
+    "maxNesting": 3
+  },
+  "documentation": {
+    "enabled": true,
+    "headerMinLines": 15,
+    "functionMinLines": 10
+  }
+}

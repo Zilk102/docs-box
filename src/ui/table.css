@@ -1,0 +1,46 @@
+/* table.css — таблица сверки, бейджи статусов и ссылки на источник. */
+
+/* ---------- таблица ---------- */
+.date { display: grid; gap: 4px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.tablewrap { overflow-x: auto; margin: 0 -8px; padding: 0 8px; }
+.grid { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 980px; }
+.grid thead th { position: sticky; top: 0; text-align: left; padding: 10px 14px; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); background: var(--surface-2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.grid thead th:first-child { border-left: 1px solid var(--line); border-top-left-radius: 10px; }
+.grid thead th:last-child { border-right: 1px solid var(--line); border-top-right-radius: 10px; }
+.grid tbody th, .grid tbody td { vertical-align: top; text-align: left; padding: 14px; border-bottom: 1px solid var(--line); font-weight: 400; }
+.grid tr.is-review > th { box-shadow: inset 3px 0 0 var(--danger); }
+.grid tr.sub td { background: var(--surface-2); padding: 10px 14px 14px; }
+.num { font-size: 17px; font-weight: 700; letter-spacing: -.01em; margin-bottom: 6px; }
+.val { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 4px; }
+.val.sm { font-size: 14.5px; font-weight: 600; }
+.was { font-size: 12.5px; color: var(--muted); margin: 6px 0; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.was s { color: var(--danger); }
+.note { font-size: 12.5px; color: var(--muted); margin: 6px 0; }
+.note.bad { color: var(--danger); font-weight: 600; }
+.ev { display: grid; gap: 6px; margin-top: 8px; justify-items: start; }
+.quote { display: block; font-size: 12.5px; line-height: 1.45; color: var(--muted); border-left: 3px solid var(--line); padding: 2px 0 2px 10px; quotes: "«" "»"; font-style: normal; }
+.quote::before { content: open-quote; } .quote::after { content: close-quote; }
+.rej { font-size: 12.5px; color: var(--muted); margin-top: 8px; display: grid; gap: 4px; justify-items: start; }
+.cand { display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+
+.side { display: flex; gap: 8px 10px; align-items: baseline; flex-wrap: wrap; font-size: 13.5px; padding: 6px 0; }
+.side + .side { border-top: 1px dashed var(--line); }
+.side em { color: var(--muted); font-style: normal; }
+.side .quote { flex-basis: 100%; }
+
+.badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 700; white-space: nowrap; vertical-align: middle; }
+.badge.ok { color: var(--ok); background: var(--ok-soft); }
+.badge.warn { color: var(--warn); background: var(--warn-soft); }
+.badge.danger { color: var(--danger); background: var(--danger-soft); }
+.badge.info { color: var(--info); background: var(--info-soft); }
+.badge.muted { color: var(--muted); background: var(--surface-2); border: 1px solid var(--line); }
+
+.src {
+  display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 3px 9px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--surface); color: var(--accent); font-size: 12px; font-weight: 600; cursor: pointer; transition: .15s;
+}
+.src span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.src b { color: var(--muted); font-weight: 600; white-space: nowrap; }
+.src:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+.empty { padding: 28px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 12px; }

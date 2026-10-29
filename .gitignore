@@ -1,0 +1,6 @@
+node_modules/
+data/
+*.tmp
+.claude/
+PO_vibecoding_task.docx
+/documents/

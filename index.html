@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DocsBox — сверка договоров поставки</title>
+  <meta name="description" content="Сверка суммы и срока поставки по договорам, допсоглашениям и письмам. Работает в браузере, не хранит данных: только импорт/экспорт общей базы.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7l8-4 8 4v10l-8 4-8-4zM4 7l8 4 8-4M12 11v10'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="src/ui/base.css">
+  <link rel="stylesheet" href="src/ui/table.css">
+  <link rel="stylesheet" href="src/ui/panels.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="logo" id="logo"></span>
+      <div><h1>DocsBox</h1><p>Сверка условий поставки по исходным документам</p></div>
+    </div>
+    <div class="top-actions">
+      <label class="who" title="Подпись под вашими загрузками в общей базе. Не сохраняется на устройстве.">
+        <span>Вы</span><input id="user-name" type="text" placeholder="Ваше имя" maxlength="40" autocomplete="off">
+      </label>
+      <span class="pill" id="sync-pill" role="status"></span>
+      <button class="btn ghost" data-act="import">Импорт базы</button>
+      <button class="btn ghost" data-act="export">Экспорт базы</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <div class="content">
+      <section class="card" id="connect" aria-labelledby="h-connect"></section>
+
+      <section class="card drop" id="drop" aria-labelledby="h-upload">
+        <div class="drop-inner">
+          <div class="drop-ico" id="drop-ico"></div>
+          <div>
+            <h2 id="h-upload">Загрузите договоры, допсоглашения и письма</h2>
+            <p>Перетащите TXT-файлы сюда или <button class="link" data-act="pick">выберите на диске</button>. Тексты попадут в общую базу — сама страница ничего не запоминает.</p>
+          </div>
+          <button class="btn ghost" data-act="demo" id="demo-btn">Загрузить демо-набор</button>
+        </div>
+        <input type="file" id="file-input" accept=".txt,text/plain" multiple hidden>
+        <input type="file" id="db-input" accept=".json,application/json" hidden>
+      </section>
+
+      <section class="card" id="result" hidden aria-labelledby="h-result">
+        <div class="card-head">
+          <div><h2 id="h-result">Условия по договорам</h2><p class="sub">Значения собраны из исходных текстов; у каждого — цитата и переход к абзацу.</p></div>
+          <label class="date"><span>Дата проверки</span><input type="date" id="check-date"></label>
+        </div>
+        <div id="contracts"></div>
+      </section>
+
+      <section class="card" id="qa" hidden aria-labelledby="h-qa">
+        <div class="card-head"><div><h2 id="h-qa">Вопросы</h2><p class="sub">Ответы строятся из той же сверки, без догадок.</p></div></div>
+        <div class="qa-grid">
+          <div class="qa-card">
+            <h3>Значение по договору</h3>
+            <div class="row">
+              <label>Что узнать<select id="q-field"></select></label>
+              <label>Договор<select id="q-contract"></select></label>
+            </div>
+            <div id="q-answer"></div>
+          </div>
+          <div class="qa-card">
+            <h3>Поставка раньше даты</h3>
+            <div class="row">
+              <label>Раньше<input type="date" id="q-before"></label>
+            </div>
+            <div id="q-before-answer"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" id="docs" hidden aria-labelledby="h-docs">
+        <div class="card-head"><div><h2 id="h-docs">Документы в базе</h2><p class="sub" id="docs-sub"></p></div></div>
+        <ul class="doclist" id="doclist"></ul>
+      </section>
+    </div>
+
+    <aside class="viewer" id="viewer" hidden aria-label="Исходный документ"></aside>
+  </main>
+
+  <footer class="foot">DocsBox · данные не хранятся в браузере · <a href="https://github.com/Zilk102/docs-box" target="_blank" rel="noopener">исходный код</a></footer>
+  <div id="toasts" aria-live="polite"></div>
+  <script type="module" src="src/ui/app.js"></script>
+</body>
+</html>

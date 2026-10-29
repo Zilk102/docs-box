@@ -1,0 +1,14 @@
+{
+  "name": "docs-box",
+  "version": "1.0.0",
+  "description": "DocsBox — сверка условий договоров поставки в браузере. Без бэкенда, без хранения данных: только импорт/экспорт общей базы.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "db-server": "node server/server.mjs",
+    "test": "node --test"
+  }
+}

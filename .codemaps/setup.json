@@ -1,0 +1,27 @@
+{
+  "codemapsVersion": "1.1.66",
+  "files": [
+    {
+      "path": ".codemaps/.gitignore",
+      "sha256": "86badb31f590a5c19a32730442fcde4978f08b058c0d84081fb6d02c5803baec",
+      "version": "1.1.66"
+    },
+    {
+      "path": ".codemaps/ci/gitlab-ci.yml",
+      "sha256": "345d9e09e419f233c272bfbb9e43a3bb554971dd3380ef7590e0dd11d44f72c3",
+      "version": "1.1.66"
+    },
+    {
+      "path": ".codemaps/ci/guard.sh",
+      "sha256": "c0ae587e86d11f3cbf993286239c1234507224b099f086a76da75a7a711e83b0",
+      "version": "1.1.66"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "84506919b0598ef6ed284188bbdc337fcd05831b7668d5ed8a93bd6abad72194",
+      "version": "1.1.66"
+    }
+  ],
+  "agents": [],
+  "at": "2026-10-29T11:33:02.010Z"
+}
